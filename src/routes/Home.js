@@ -1,33 +1,30 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { dbService } from "firebaseInstance";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import Cweet from "components/Cweet";
+import { collection, addDoc, onSnapshot } from "firebase/firestore";
 
 const Home = ({ userObj }) => {
   const [cweet, setCweet] = useState("");
   const [cweets, setCweets] = useState([]);
 
-  const getCweets = async () => {
-    const dbCweets = await getDocs(collection(dbService, "cweets"));
-    dbCweets.docs.map((tweet) => {
-      const tweetObj = {
-        ...tweet.data(),
-        id: tweet.id,
-      };
-      setCweets((priv) => [tweetObj, ...priv]);
-    });
-  };
-
   useEffect(() => {
-    getCweets();
+    onSnapshot(collection(dbService, "cweets"), (snapshot) => {
+      const cweetArr = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCweets(cweetArr);
+    });
   }, []);
 
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
       await addDoc(collection(dbService, "cweets"), {
-        cweet: cweet,
+        text: cweet,
         createdAt: Date.now(),
+        creatorId: userObj.uid,
       });
     } catch (e) {
       console.log(e.message);
@@ -46,7 +43,7 @@ const Home = ({ userObj }) => {
         <input
           value={cweet}
           type="text"
-          palceholder="트윗 내용을 입력해라"
+          placeholder="트윗 내용을 입력해라"
           maxLength={120}
           onChange={onChange}
         ></input>
@@ -54,9 +51,11 @@ const Home = ({ userObj }) => {
       </form>
       <div>
         {cweets.map((cweet) => (
-          <div key={cweet.id}>
-            <h4>{cweet.cweet}</h4>
-          </div>
+          <Cweet
+            key={cweet.id}
+            cweetObj={cweet}
+            isOwner={cweet.creatorId === userObj.uid}
+          />
         ))}
       </div>
     </div>

@@ -7,14 +7,14 @@ import Home from "routes/Home";
 import Profile from "routes/Profile";
 import Navigation from "components/Navigation";
 
-const AppRouter = ({ isLoggedIn }) => {
+const AppRouter = ({ isLoggedIn, userObj }) => {
   return (
     <Router>
       {isLoggedIn && <Navigation />}
       <Routes>
         {isLoggedIn ? (
           <>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home userObj={userObj} />} />
             <Route path="/profile" element={<Profile />} />
           </>
         ) : (
@@ -27,6 +27,7 @@ const AppRouter = ({ isLoggedIn }) => {
 
 AppRouter.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
+  userObj: PropTypes.object.isRequired,
 };
 
 export default AppRouter;

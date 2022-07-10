@@ -1,18 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { dbService } from "firebaseInstance";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 
-const Home = () => {
+const Home = ({ userObj }) => {
   const [cweet, setCweet] = useState("");
+  const [cweets, setCweets] = useState([]);
+
+  const getCweets = async () => {
+    const dbCweets = await getDocs(collection(dbService, "cweets"));
+    dbCweets.docs.map((tweet) => {
+      const tweetObj = {
+        ...tweet.data(),
+        id: tweet.id,
+      };
+      setCweets((priv) => [tweetObj, ...priv]);
+    });
+  };
+
+  useEffect(() => {
+    getCweets();
+  }, []);
+
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
-      let doc = await addDoc(collection(dbService, "cweets"), {
+      await addDoc(collection(dbService, "cweets"), {
         cweet: cweet,
         createdAt: Date.now(),
       });
-      console.log(`${doc}문서 생성~!`);
     } catch (e) {
       console.log(e.message);
     }
@@ -36,6 +52,13 @@ const Home = () => {
         ></input>
         <input type="submit" value="Cwitt" onClick={onSubmit}></input>
       </form>
+      <div>
+        {cweets.map((cweet) => (
+          <div key={cweet.id}>
+            <h4>{cweet.cweet}</h4>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

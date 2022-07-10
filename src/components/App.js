@@ -6,10 +6,13 @@ import AppRouter from "components/Router";
 function App() {
   const [init, setInit] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(authInstance.currentUser);
+  const [userObj, setUserObj] = useState(null);
+
   useEffect(() => {
     authInstance.onAuthStateChanged((user) => {
       if (user) {
         setIsLoggedIn(true);
+        setUserObj(user);
       } else {
         setIsLoggedIn(false);
       }
@@ -18,7 +21,11 @@ function App() {
   }, []);
   return (
     <>
-      {init ? <AppRouter isLoggedIn={isLoggedIn} /> : "로딩중"}
+      {init ? (
+        <AppRouter isLoggedIn={isLoggedIn} userObj={userObj} />
+      ) : (
+        "로딩중"
+      )}
       <footer>&copy; Cwitter {new Date().getFullYear()}</footer>
     </>
   );

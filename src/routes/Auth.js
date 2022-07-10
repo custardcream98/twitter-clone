@@ -1,8 +1,18 @@
 import React, { useState } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+
+import { authInstance } from "firebaseInstance";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newAccount, setNewAccount] = useState(true);
+  const [error, setError] = useState("");
 
   const onChange = (event) => {
     const {
@@ -15,8 +25,38 @@ const Auth = () => {
     }
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
+    try {
+      if (newAccount) {
+        const data = await createUserWithEmailAndPassword(
+          authInstance,
+          email,
+          password
+        );
+      } else {
+        const data = await signInWithEmailAndPassword(
+          authInstance,
+          email,
+          password
+        );
+        console.log(data);
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const toggleAccount = () => setNewAccount((current) => !current);
+
+  const onGoogleSignInClick = async (event) => {
+    let provider;
+    if (event.target.name === "google") {
+      provider = new GoogleAuthProvider();
+    }
+
+    const data = await signInWithPopup(authInstance, provider);
+    console.log(data);
   };
 
   return (
@@ -38,10 +78,16 @@ const Auth = () => {
           value={password}
           onChange={onChange}
         />
-        <input type="submit" placeholder="Log In" required />
+        <input type="submit" value={newAccount ? "계정 생성하기" : "로그인"} />
+        {error}
       </form>
+      <span onClick={toggleAccount}>
+        {newAccount ? "로그인" : "계정 생성하기"}
+      </span>
       <div>
-        <button>Google 로그인</button>
+        <button name="google" onClick={onGoogleSignInClick}>
+          Google 로그인
+        </button>
       </div>
     </div>
   );

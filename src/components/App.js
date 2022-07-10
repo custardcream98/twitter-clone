@@ -1,15 +1,27 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 
-import { authService } from "firebaseInstance";
+import { authInstance } from "firebaseInstance";
 import AppRouter from "components/Router";
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(authService.currentUser);
-    return <>
-        <AppRouter isLoggedIn={isLoggedIn} />
-        <footer>
-            &copy; Cwitter {new Date().getFullYear()}
-        </footer></>;
+  const [init, setInit] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(authInstance.currentUser);
+  useEffect(() => {
+    authInstance.onAuthStateChanged((user) => {
+      if (user) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+      setInit(true);
+    });
+  }, []);
+  return (
+    <>
+      {init ? <AppRouter isLoggedIn={isLoggedIn} /> : "로딩중"}
+      <footer>&copy; Cwitter {new Date().getFullYear()}</footer>
+    </>
+  );
 }
 
 export default App;

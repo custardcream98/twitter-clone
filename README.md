@@ -10,3 +10,4 @@ React.js와 Firebase를 이용해 MVP 프로젝트를 개발하는 연습해보�
   - CRA로 환경변수 관리하기
   - React Fragments
   - 절대경로 이용하기 (jsconfig.json)
+  - **너무너무 멋있는 object unpack 문법**

@@ -10,10 +10,11 @@ const Home = ({ userObj }) => {
 
   useEffect(() => {
     onSnapshot(collection(dbService, "cweets"), (snapshot) => {
-      const cweetArr = snapshot.docs.map((doc) => ({
+      let cweetArr = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+      cweetArr.sort((a, b) => b.createdAt - a.createdAt);
       setCweets(cweetArr);
     });
   }, []);
